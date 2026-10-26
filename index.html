@@ -42,6 +42,11 @@ body.glow .moon{filter:drop-shadow(0 0 40px rgba(248,236,196,.9));transform:scal
 #date::-webkit-date-and-time-value{text-align:center}
 #date::-webkit-calendar-picker-indicator{filter:invert(.85) sepia(.6) saturate(3) hue-rotate(5deg);cursor:pointer}
 #date:focus{outline:2px solid var(--gold);outline-offset:3px}
+.dsel{display:grid;grid-template-columns:1fr 1.6fr 1.2fr;gap:8px;width:100%}
+.dsel select{appearance:none;-webkit-appearance:none;min-height:54px;border-radius:14px;border:1.5px solid rgba(228,188,106,.7);background:rgba(11,16,48,.55);
+  color:var(--moon);font-family:var(--serif);font-size:1.2rem;text-align:center;text-align-last:center;padding:8px 6px;cursor:pointer;min-width:0}
+.dsel select:focus{outline:2px solid var(--gold);outline-offset:2px}
+.dsel option{color:#111;background:#fff}
 .btn{font-family:var(--caps);letter-spacing:.18em;font-size:.9rem;color:var(--night);background:linear-gradient(180deg,#f3d692,var(--gold));border:0;border-radius:999px;
   padding:16px 28px;cursor:pointer;box-shadow:0 6px 30px rgba(228,188,106,.35);width:100%}
 .btn:active{transform:scale(.97)}
@@ -136,7 +141,12 @@ body.glow .moon{filter:drop-shadow(0 0 40px rgba(248,236,196,.9));transform:scal
   <p class="lead">The Moon has kept a story for you. Only you know the day it began.</p>
   <form class="field" id="gateForm" novalidate>
     <label for="date">Enter the date</label>
-    <input id="date" type="date" required>
+    <div class="dsel">
+      <select id="dd" aria-label="Day"><option value="">Day</option></select>
+      <select id="mm" aria-label="Month"><option value="">Month</option></select>
+      <select id="yy" aria-label="Year"><option value="">Year</option></select>
+    </div>
+    <input id="date" type="hidden">
     <button class="btn" type="submit">Open the story ✨</button>
   </form>
   <div id="msg" role="status"></div>
@@ -318,6 +328,12 @@ function isOurDay(v) {
     return mon === 9 && day === 27 && yr === 2025; }
   return false;
 }
+const MN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+for (let i = 1; i <= 31; i++) $("#dd").add(new Option(i, String(i).padStart(2, "0")));
+MN.forEach((m, i) => $("#mm").add(new Option(m, String(i + 1).padStart(2, "0"))));
+for (let y = 2027; y >= 2020; y--) $("#yy").add(new Option(y, y));
+const syncDate = () => { const d = $("#dd").value, m = $("#mm").value, y = $("#yy").value; $("#date").value = d && m && y ? `${y}-${m}-${d}` : ""; };
+["#dd","#mm","#yy"].forEach(s => $(s).addEventListener("change", syncDate));
 let tries = 0;
 const hints = ["Not quite, my love. Try again 🌙", "Hmm… think of the night it all began 🍂", "Psst… it was October 2025 🍁", "Psst… the 27th 😉"];
 $("#gateForm").addEventListener("submit", e => {
