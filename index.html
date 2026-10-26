@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Our Fairy Tale</title>
+<meta name="theme-color" content="#0b1030">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0b1030; --night2:#1d1f52; --moon:#f8ecc4; --gold:#e4bc6a; --rose:#f39ab0;
+  --paper:#f8eedb; --ink:#3a2817; --muted:#c9c3e6;
+  --script:"Great Vibes", "Snell Roundhand", cursive;
+  --serif:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --caps:"Cinzel", Georgia, serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--night);color:var(--moon);font-family:var(--serif);overflow:hidden}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;background:radial-gradient(ellipse at 70% 0%, #2b2a6b 0%, var(--night2) 35%, var(--night) 75%)}
+.moon{position:fixed;top:calc(env(safe-area-inset-top,0px) + 28px);right:max(28px, env(safe-area-inset-right,0px));width:74px;height:74px;border-radius:50%;
+  box-shadow:inset -18px 6px 0 0 var(--moon);filter:drop-shadow(0 0 18px rgba(248,236,196,.55));z-index:1;transition:transform 2s, filter 2s}
+body.glow .moon{filter:drop-shadow(0 0 40px rgba(248,236,196,.9));transform:scale(1.1)}
+.screen{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:calc(env(safe-area-inset-top,0px) + 20px) max(18px, env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 20px) max(18px, env(safe-area-inset-left,0px));
+  opacity:0;pointer-events:none;transition:opacity 1.2s ease}
+.screen.on{opacity:1;pointer-events:auto}
+.caps{font-family:var(--caps);letter-spacing:.28em;font-size:.78rem;color:var(--gold);text-transform:uppercase}
+.script{font-family:var(--script);font-weight:400}
+
+/* Gate */
+#gate{text-align:center;gap:14px}
+#gate h1{font-family:var(--script);font-size:clamp(3.4rem,15vw,5.6rem);margin:0;line-height:1;color:var(--moon);text-shadow:0 0 24px rgba(248,236,196,.35)}
+#gate p.lead{font-size:1.25rem;font-style:italic;max-width:30ch;margin:4px auto 10px;color:var(--muted);line-height:1.45}
+.field{display:flex;flex-direction:column;gap:10px;align-items:center;width:min(100%,330px)}
+.field label{font-family:var(--caps);letter-spacing:.2em;font-size:.75rem;color:var(--gold)}
+#date{appearance:none;-webkit-appearance:none;width:100%;min-height:54px;border-radius:14px;border:1.5px solid rgba(228,188,106,.7);background:rgba(11,16,48,.55);
+  color:var(--moon);font-family:var(--serif);font-size:1.35rem;text-align:center;padding:10px 14px;display:flex;align-items:center;justify-content:center}
+#date::-webkit-date-and-time-value{text-align:center}
+#date::-webkit-calendar-picker-indicator{filter:invert(.85) sepia(.6) saturate(3) hue-rotate(5deg);cursor:pointer}
+#date:focus{outline:2px solid var(--gold);outline-offset:3px}
+.btn{font-family:var(--caps);letter-spacing:.18em;font-size:.9rem;color:var(--night);background:linear-gradient(180deg,#f3d692,var(--gold));border:0;border-radius:999px;
+  padding:16px 28px;cursor:pointer;box-shadow:0 6px 30px rgba(228,188,106,.35);width:100%}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible{outline:2px solid var(--moon);outline-offset:3px}
+#msg{min-height:1.6em;font-style:italic;color:var(--rose);font-size:1.1rem}
+.shake{animation:shake .5s}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+
+/* Story */
+#story{justify-content:space-between;gap:10px}
+#story .head{text-align:center;padding-top:6px}
+.stage{position:relative;flex:1;width:100%;max-width:520px;min-height:0}
+.pol{position:absolute;left:50%;top:50%;width:min(64vw,300px);background:#fffaf0;padding:10px 10px 38px;border-radius:3px;
+  box-shadow:0 18px 40px rgba(0,0,0,.55);transform:translate(-50%,-160%) rotate(0deg) scale(1.15);opacity:0;
+  transition:transform 1.4s cubic-bezier(.2,.8,.2,1.1), opacity 1s}
+.pol img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;object-position:50% 30%}
+.pol.tall img{object-fit:contain;background:#111}
+.pol span{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-family:var(--script);font-size:1.6rem;color:#4a3420}
+.pol.in{opacity:1}
+.narr{min-height:7.5em;max-width:30ch;text-align:center;font-size:clamp(1.3rem,5.6vw,1.75rem);line-height:1.35;font-style:italic;display:flex;align-items:center;justify-content:center}
+.narr .ln{transition:opacity 1s, filter 1s;opacity:0;filter:blur(6px)}
+.narr .ln.on{opacity:1;filter:blur(0)}
+.narr .big{font-family:var(--script);font-style:normal;font-size:1.6em;color:var(--moon)}
+#voice{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:max(14px, env(safe-area-inset-left,0px));z-index:5;background:rgba(11,16,48,.6);color:var(--gold);
+  border:1px solid rgba(228,188,106,.5);border-radius:999px;padding:8px 14px;font-family:var(--caps);font-size:.7rem;letter-spacing:.15em;cursor:pointer}
+
+/* Song */
+#song{padding:0}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;overflow:hidden}
+.slide.on{opacity:1}
+.slide .bg{position:absolute;inset:-10%;background-size:cover;background-position:center;filter:blur(18px) brightness(.55) saturate(1.2);transform:scale(1.1)}
+.slide img{position:absolute;left:50%;top:46%;max-width:88vw;max-height:66vh;transform:translate(-50%,-50%) scale(1);border-radius:6px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);border:6px solid #fffaf0}
+.slide.on img{animation:kb 9s ease-out forwards}
+@keyframes kb{from{transform:translate(-50%,-50%) scale(1.0) rotate(-1deg)}to{transform:translate(-50%,-50%) scale(1.07) rotate(1deg)}}
+.cap{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 8vh);text-align:center;font-family:var(--script);font-size:clamp(2rem,9vw,3rem);
+  color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.8);padding:0 18px;opacity:0;transform:translateY(12px);transition:all 1.2s .5s}
+.slide.on .cap{opacity:1;transform:none}
+.songtitle{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);left:0;right:0;text-align:center;z-index:3;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+.songtitle .t{font-family:var(--script);font-size:2rem;color:var(--moon)}
+.bar{position:absolute;left:12%;right:12%;bottom:calc(env(safe-area-inset-bottom,0px) + 3.5vh);height:3px;background:rgba(255,255,255,.18);border-radius:3px;z-index:3;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold)}
+#tap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;z-index:4;background:rgba(11,16,48,.55)}
+#tap .disc{width:150px;height:150px;border-radius:50%;background:repeating-radial-gradient(circle,#151515 0 3px,#222 3px 5px);display:grid;place-items:center;
+  box-shadow:0 0 0 3px var(--gold),0 0 50px rgba(228,188,106,.5);animation:spin 4s linear infinite}
+#tap .disc::after{content:"♪";width:52px;height:52px;border-radius:50%;background:var(--rose);display:grid;place-items:center;color:var(--night);font-size:1.6rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+#tap p{font-size:1.4rem;font-style:italic;margin:0;max-width:24ch}
+#yt{position:fixed;inset:0;width:100%;height:100%;border:0;opacity:0;pointer-events:none;z-index:-1}
+#yt.catch{z-index:50;pointer-events:auto}
+#skipmusic{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);z-index:60;background:none;border:0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:1rem;text-decoration:underline;cursor:pointer}
+
+/* Letter */
+#letterScr{justify-content:center;overflow:hidden}
+.env{position:relative;width:min(84vw,340px);aspect-ratio:3/2;background:#e9d6ad;border-radius:6px;box-shadow:0 25px 60px rgba(0,0,0,.6);cursor:pointer;perspective:800px}
+.env::before{content:"";position:absolute;inset:0;background:linear-gradient(to top right,#dcc391 50%,transparent 50.5%) left/50% 100% no-repeat,linear-gradient(to top left,#dcc391 50%,transparent 50.5%) right/50% 100% no-repeat;border-radius:6px}
+.flap{position:absolute;left:0;right:0;top:0;height:60%;background:#d8bd86;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform 1s;z-index:2}
+.seal{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#d9485f,#9e1f36);
+  display:grid;place-items:center;font-size:1.5rem;z-index:3;box-shadow:0 3px 8px rgba(0,0,0,.4);transition:opacity .6s}
+.env.open .flap{transform:rotateX(180deg)}
+.env.open .seal{opacity:0}
+.envhint{margin-top:22px;text-align:center;font-style:italic;font-size:1.3rem}
+.envhint .caps{display:block;margin-bottom:6px}
+#letter{position:fixed;inset:0;z-index:6;overflow-y:auto;-webkit-overflow-scrolling:touch;opacity:0;pointer-events:none;transition:opacity 1.5s;
+  padding:calc(env(safe-area-inset-top,0px) + 30px) max(16px, env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 40px) max(16px, env(safe-area-inset-left,0px))}
+#letter.on{opacity:1;pointer-events:auto}
+.paper{max-width:620px;margin:0 auto;background:var(--paper);color:var(--ink);border-radius:6px;padding:38px clamp(20px,6vw,52px) 44px;
+  box-shadow:0 30px 80px rgba(0,0,0,.6), inset 0 0 80px rgba(160,120,60,.22);font-size:clamp(1.12rem,4.4vw,1.28rem);line-height:1.62}
+.paper h2{font-family:var(--script);font-weight:400;font-size:clamp(2.1rem,9vw,3rem);line-height:1.15;margin:0 0 6px;text-align:center;color:#5a2a2a;text-wrap:balance}
+.paper .date{text-align:center;font-family:var(--caps);letter-spacing:.14em;font-size:.8rem;color:#8a6a3a;margin-bottom:26px}
+.paper p{margin:0 0 1em}
+.paper .sal{font-family:var(--script);font-size:2rem;margin-bottom:.4em;color:#5a2a2a}
+.paper .sign{font-family:var(--script);font-size:2.6rem;color:#5a2a2a;margin:.2em 0 0}
+.paper .em{font-style:italic;font-weight:600}
+.fin{text-align:center;margin:30px auto 0;max-width:620px;color:var(--moon)}
+.fin .script{font-size:2.4rem;display:block}
+.fin .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.ghost{background:transparent;border:1px solid rgba(228,188,106,.6);color:var(--gold);border-radius:999px;padding:12px 20px;font-family:var(--caps);letter-spacing:.14em;font-size:.75rem;cursor:pointer}
+.heart{position:fixed;bottom:-40px;z-index:7;pointer-events:none;font-size:22px;animation:rise linear forwards}
+@keyframes rise{to{transform:translateY(-115vh) translateX(var(--dx)) rotate(var(--r));opacity:0}}
+@media (prefers-reduced-motion:reduce){.slide.on img{animation:none}#tap .disc{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<div class="moon" aria-hidden="true"></div>
+
+<!-- Gate -->
+<section class="screen on" id="gate">
+  <div class="caps">A fairy tale for</div>
+  <h1>Jojo</h1>
+  <p class="lead">The Moon has kept a story for you. Only you know the day it began.</p>
+  <form class="field" id="gateForm" novalidate>
+    <label for="date">Enter the date</label>
+    <input id="date" type="date" required>
+    <button class="btn" type="submit">Open the story ✨</button>
+  </form>
+  <div id="msg" role="status"></div>
+</section>
+
+<!-- Story -->
+<section class="screen" id="story">
+  <div class="head"><div class="caps">Chapter One</div></div>
+  <div class="stage" id="stage"></div>
+  <div class="narr" id="narr"></div>
+</section>
+<button id="voice" hidden>🔊 Narrator on</button>
+
+<!-- Song -->
+<section class="screen" id="song">
+  <div class="songtitle"><div class="caps">Chapter Two</div><div class="t">Until I Found You</div></div>
+  <div id="slides"></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div id="tap" hidden>
+    <div class="disc"></div>
+    <p>Tap anywhere to play our song</p>
+    <div class="caps">Stephen Sanchez</div>
+  </div>
+</section>
+<button id="skipmusic" hidden>continue without music</button>
+
+<!-- Letter -->
+<section class="screen" id="letterScr">
+  <div class="env" id="env" role="button" tabindex="0" aria-label="Open the letter">
+    <div class="flap"></div><div class="seal">🌙</div>
+  </div>
+  <div class="envhint"><span class="caps">One last thing</span>A letter for you, my love.<br>Tap to open.</div>
+</section>
+
+<div id="letter">
+  <article class="paper">
+    <h2>To My Jojo, My Om Luna 🌙❤️</h2>
+    <div class="date">27.10.2025 — Forever and after.</div>
+    <p class="sal">My Jasmine,</p>
+    <p>Sometimes I wonder how one person can become such a big part of your world. How someone can turn into your favorite notification, your happiest thoughts, your worries, your dreams, and a part of your future you can no longer imagine without them.</p>
+    <p>And somehow, that's what you became to me.</p>
+    <p>Our story hasn't always been easy. We've had beautiful days I wish I could freeze forever, and difficult days when understanding each other wasn't so simple. We've laughed, made memories, disagreed, learned, and experienced things that have shaped our relationship in ways only we truly understand.</p>
+    <p>But when I think about us, I don't want to remember only the good days or pretend the bad ones never happened. I want to remember our story in its entirety, because every chapter is a part of the journey that brought us here.</p>
+    <p>I don't expect us to be perfect, habibty. I just hope we never stop learning how to love each other better, understanding each other deeper, and choosing to build something beautiful together.</p>
+    <p>When I imagine my future, I think about all the little things I still want with you: the memories we haven't made, the dreams we haven't achieved, the ordinary days we'll turn into beautiful ones, and the years from now when we'll look back at where it all began.</p>
+    <p>If there's one thing I want you to know, it's that you aren't just someone I love today. You're someone I dream of sharing so many tomorrows with.</p>
+    <p>On 27 October 2025, our story began. And today, I'm grateful for every beautiful memory, every lesson, and every chapter that has been ours.</p>
+    <p>Happy anniversary, my Jojo. My Jasmine. My Om Luna. 🌙</p>
+    <p>Whatever pages life has waiting for us, I hope we keep writing them together, with more love, more understanding, and a thousand new reasons to smile at each other.</p>
+    <p class="em">Me &amp; You. One story. A thousand memories still to come.</p>
+    <p class="em">Forever and after. ♾️❤️</p>
+    <p>Yours,</p>
+    <p class="sign">Seif.</p>
+  </article>
+  <div class="fin">
+    <span class="script">…and they lived happily ever after.</span>
+    <div class="row">
+      <button class="ghost" id="again">Read the story again</button>
+    </div>
+  </div>
+</div>
+
+<iframe id="yt" title="Until I Found You" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+
+<script>
+(() => {
+const VIDEO = "MlThQTo6D8A";           // Stephen Sanchez – Until I Found You (official audio)
+const SONG_SECONDS = 60;
+const Q = new URLSearchParams(location.search);
+const SPEED = Number(Q.get("speed")) || 1; // testing only
+const $ = s => document.querySelector(s);
+const wait = ms => new Promise(r => setTimeout(r, ms / SPEED));
+
+/* ---------- stars ---------- */
+const cv = $("#sky"), cx = cv.getContext("2d");
+let stars = [], W, H, dust = [];
+function size() {
+  const d = Math.min(devicePixelRatio || 1, 2);
+  W = cv.width = innerWidth * d; H = cv.height = innerHeight * d;
+  stars = Array.from({length: 160}, () => ({x: Math.random()*W, y: Math.random()*H, r: (Math.random()*1.3+.3)*d, p: Math.random()*6.28, s: Math.random()*.02+.005}));
+}
+size(); addEventListener("resize", size);
+let shoot = null;
+function draw() {
+  cx.clearRect(0,0,W,H);
+  for (const s of stars) { s.p += s.s; cx.globalAlpha = .35 + .65*Math.abs(Math.sin(s.p)); cx.fillStyle = "#fff8e0"; cx.beginPath(); cx.arc(s.x,s.y,s.r,0,6.28); cx.fill(); }
+  if (!shoot && Math.random() < .004) shoot = {x: Math.random()*W*.7, y: Math.random()*H*.3, l: 0};
+  if (shoot) { shoot.l += 14; const g = cx.createLinearGradient(shoot.x, shoot.y, shoot.x+shoot.l, shoot.y+shoot.l*.45);
+    g.addColorStop(0,"rgba(255,255,255,0)"); g.addColorStop(1,"rgba(255,248,220,.9)"); cx.globalAlpha = 1; cx.strokeStyle = g; cx.lineWidth = 2;
+    cx.beginPath(); cx.moveTo(shoot.x, shoot.y); cx.lineTo(shoot.x+shoot.l, shoot.y+shoot.l*.45); cx.stroke(); if (shoot.l > W*.35) shoot = null; }
+  for (let i = dust.length-1; i >= 0; i--) { const p = dust[i]; p.x += p.vx; p.y += p.vy; p.vy += .05; p.a -= .012;
+    if (p.a <= 0) { dust.splice(i,1); continue; } cx.globalAlpha = p.a; cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x,p.y,p.r,0,6.28); cx.fill(); }
+  cx.globalAlpha = 1; requestAnimationFrame(draw);
+}
+draw();
+function burst(x, y) {
+  const d = Math.min(devicePixelRatio || 1, 2);
+  for (let i = 0; i < 90; i++) { const a = Math.random()*6.28, v = Math.random()*7+2;
+    dust.push({x: x*d, y: y*d, vx: Math.cos(a)*v, vy: Math.sin(a)*v-3, r: (Math.random()*2+1)*d, a: 1, c: Math.random()<.5 ? "#f3d692" : "#f39ab0"}); }
+}
+
+/* ---------- preload photos ---------- */
+const imgs = [];
+for (let i = 1; i <= 12; i++) { const im = new Image(); im.src = `img/${i}.jpg`; imgs.push(im); }
+
+/* ---------- YouTube (audio only, hidden player) ---------- */
+const yt = $("#yt");
+const origin = location.origin && location.origin !== "null" ? `&origin=${encodeURIComponent(location.origin)}` : "";
+yt.src = `https://www.youtube.com/embed/${VIDEO}?enablejsapi=1&playsinline=1&controls=0&disablekb=1&rel=0&modestbranding=1&start=0${origin}`;
+let ytTime = 0, ytState = -1, ytReady = false, ytHeard = false;
+function ytPost(o) { try { yt.contentWindow.postMessage(JSON.stringify(o), "*"); } catch (e) {} }
+function ytCmd(func, args = []) { ytPost({event: "command", func, args, id: 1, channel: "widget"}); }
+const listen = setInterval(() => { if (ytHeard) return clearInterval(listen); ytPost({event: "listening", id: 1, channel: "widget"}); }, 400);
+yt.addEventListener("load", () => ytPost({event: "listening", id: 1, channel: "widget"}));
+addEventListener("message", e => {
+  if (!/youtube(-nocookie)?\.com$/.test((() => { try { return new URL(e.origin).hostname } catch { return "" } })())) return;
+  let d; try { d = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch { return; }
+  ytHeard = true;
+  if (d.event === "onReady") ytReady = true;
+  if (d.event === "onStateChange") ytState = d.info;
+  if (d.event === "infoDelivery" && d.info) {
+    if (typeof d.info.playerState === "number") ytState = d.info.playerState;
+    if (typeof d.info.currentTime === "number") ytTime = d.info.currentTime;
+  }
+});
+
+/* ---------- narrator voice ---------- */
+const synth = window.speechSynthesis;
+let voiceOn = !!synth && Q.get("voice") !== "0", voice = null;
+function pickVoice() {
+  if (!synth) return;
+  const vs = synth.getVoices().filter(v => /^en/i.test(v.lang));
+  const pref = ["Daniel","Google UK English Female","Serena","Kate","Martha","Samantha","Google UK English Male","Karen","Moira","Tessa","Google US English"];
+  voice = pref.map(n => vs.find(v => v.name.includes(n))).find(Boolean) || vs.find(v => /en-GB/i.test(v.lang)) || vs[0] || null;
+}
+if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
+function say(text) {
+  if (!voiceOn || !synth || SPEED > 1) return;
+  const u = new SpeechSynthesisUtterance(text.replace(/[🌙❤️✨…]/g, " ").replace(/\s+/g, " "));
+  if (voice) u.voice = voice; u.rate = .93; u.pitch = 1; u.volume = 1; synth.speak(u);
+}
+const vBtn = $("#voice");
+vBtn.onclick = () => { voiceOn = !voiceOn; vBtn.textContent = voiceOn ? "🔊 Narrator on" : "🔈 Narrator off"; if (!voiceOn && synth) synth.cancel(); };
+
+/* ---------- music box (gentle, synthesized) ---------- */
+let ac, mbGain;
+function musicBox(seconds) {
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    ac.resume();
+    mbGain = ac.createGain(); mbGain.gain.value = .11; mbGain.connect(ac.destination);
+    const prog = [[60,64,67,72],[57,60,64,69],[53,57,60,65],[55,59,62,67]];
+    const pattern = [0,1,2,3,2,1];
+    const beat = .42; let t = ac.currentTime + .1, n = 0;
+    while (t < ac.currentTime + seconds) {
+      const chord = prog[Math.floor(n / 12) % 4], m = chord[pattern[n % 6]] + 12;
+      const f = 440 * Math.pow(2, (m - 69) / 12);
+      [1, 2.01].forEach((h, k) => { const o = ac.createOscillator(), g = ac.createGain();
+        o.type = "sine"; o.frequency.value = f * h; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(k ? .12 : .5, t + .01);
+        g.gain.exponentialRampToValueAtTime(.0001, t + 1.6); o.connect(g); g.connect(mbGain); o.start(t); o.stop(t + 1.7); });
+      t += beat; n++;
+    }
+  } catch (e) {}
+}
+function musicBoxFade() { try { mbGain.gain.linearRampToValueAtTime(0, ac.currentTime + 2); } catch (e) {} }
+
+/* ---------- screens ---------- */
+function show(id) { document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); }
+
+/* ---------- gate ---------- */
+const MONTHS = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+function isOurDay(v) {
+  v = (v || "").trim().toLowerCase();
+  if (v === "2025-10-27") return true;
+  let m = v.match(/^(\d{1,2})[\/.\- ](\d{1,2})[\/.\- ](\d{2,4})$/);
+  if (m) { const a = +m[1], b = +m[2], y = +m[3] % 100; return y === 25 && ((a === 27 && b === 10) || (a === 10 && b === 27)); }
+  m = v.match(/(\d{1,2})(st|nd|rd|th)?\s*(of\s+)?([a-z]+)\.?,?\s*(\d{4})/) || v.match(/([a-z]+)\.?\s*(\d{1,2})(st|nd|rd|th)?,?\s*(\d{4})/);
+  if (m) { const txt = v.replace(/[^a-z]/g, " "); const mon = MONTHS.findIndex(x => txt.includes(x)); const day = +(v.match(/\b(\d{1,2})(st|nd|rd|th)?\b/) || [])[1]; const yr = +(v.match(/\d{4}/) || [])[0];
+    return mon === 9 && day === 27 && yr === 2025; }
+  return false;
+}
+let tries = 0;
+const hints = ["Not quite, my love. Try again 🌙", "Hmm… think of the night it all began 🍂", "Psst… it was October 2025 🍁", "Psst… the 27th 😉"];
+$("#gateForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const input = $("#date");
+  if (!isOurDay(input.value)) {
+    $("#msg").textContent = input.value ? hints[Math.min(tries++, hints.length - 1)] : "Pick a date first, my love 🌙";
+    const f = $("#gateForm"); f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake");
+    return;
+  }
+  // unlocked: this tap also unlocks sound for the rest of the story
+  const r = e.submitter ? e.submitter.getBoundingClientRect() : {left: innerWidth/2, top: innerHeight/2, width: 0, height: 0};
+  burst(r.left + r.width/2, r.top + r.height/2);
+  $("#msg").textContent = "Yes. That's our day ❤️";
+  document.body.classList.add("glow");
+  musicBox(31);
+  if (synth && voiceOn) { synth.cancel(); say("Once upon a time"); }
+  ytCmd("mute"); ytCmd("seekTo", [0, true]); ytCmd("pauseVideo");
+  storyStarted();
+});
+
+/* ---------- chapter one: narration (~30s) ---------- */
+const LINES = [
+  {t: '<span class="big">Once upon a time…</span>', d: 3.4, said: null},
+  {t: "under a sky full of stars, there lived a boy named Seif.", d: 3.9, photo: 1, cap: "the beginning ♡"},
+  {t: "Then, on the 27th of October 2025, the Moon sent him a gift…", d: 4.3},
+  {t: "a girl named Jasmine, with a smile brighter than moonlight.", d: 4.0, photo: 2, cap: "that smile"},
+  {t: "He called her Jojo. And sometimes… his Om Luna 🌙", d: 3.8, photo: 3, cap: "my Om Luna"},
+  {t: "Their story had sunny days and stormy nights,", d: 3.4},
+  {t: "laughter, lessons, and a thousand little moments.", d: 3.6, photo: 4, cap: "us, always"},
+  {t: "And through every chapter, they kept choosing each other…", d: 3.6},
+];
+async function storyStarted() {
+  await wait(1300);
+  show("story");
+  if (synth) vBtn.hidden = false;
+  const narr = $("#narr"), stage = $("#stage");
+  for (let i = 0; i < LINES.length; i++) {
+    const L = LINES[i];
+    narr.innerHTML = `<span class="ln">${L.t}</span>`;
+    requestAnimationFrame(() => requestAnimationFrame(() => narr.firstChild.classList.add("on")));
+    if (i > 0) say(L.t.replace(/<[^>]+>/g, ""));
+    if (L.photo) {
+      const p = document.createElement("div");
+      p.className = "pol" + (L.photo === 4 ? " tall" : "");
+      p.innerHTML = `<img src="img/${L.photo}.jpg" alt=""><span>${L.cap}</span>`;
+      stage.appendChild(p);
+      const rot = [-6, 5, -3, 4][stage.children.length - 1] || 0, dx = [-6, 8, -4, 3][stage.children.length - 1] || 0;
+      requestAnimationFrame(() => requestAnimationFrame(() => { p.classList.add("in"); p.style.transform = `translate(calc(-50% + ${dx}px), -50%) rotate(${rot}deg)`; }));
+    }
+    await wait(L.d * 1000);
+    narr.firstChild.classList.remove("on");
+    await wait(450);
+  }
+  musicBoxFade();
+  songChapter();
+}
+
+/* ---------- chapter two: the song (60s) ---------- */
+const SLIDES = [
+  {n: 5, cap: "Every fairy tale needs a palace…"},
+  {n: 6, cap: "…and a princess to light it up."},
+  {n: 7, cap: "Nights full of lanterns & laughter"},
+  {n: 8, cap: "My favorite place: next to you"},
+  {n: 9, cap: "Your smile, my safest place"},
+  {n: 10, cap: "Ordinary days, made beautiful"},
+  {n: 11, cap: "A thousand memories…"},
+  {n: 12, cap: "…and a thousand more to come 😘"},
+];
+const slidesEl = $("#slides");
+SLIDES.forEach(s => {
+  const d = document.createElement("div"); d.className = "slide";
+  d.innerHTML = `<div class="bg" style="background-image:url(img/${s.n}.jpg)"></div><img src="img/${s.n}.jpg" alt=""><div class="cap">${s.cap}</div>`;
+  slidesEl.appendChild(d);
+});
+let curSlide = -1;
+function setSlide(i) {
+  i = Math.max(0, Math.min(SLIDES.length - 1, i));
+  if (i === curSlide) return; curSlide = i;
+  [...slidesEl.children].forEach((el, k) => el.classList.toggle("on", k === i));
+}
+
+async function songChapter() {
+  if (synth) { setTimeout(() => synth.cancel(), 2500 / SPEED); }
+  vBtn.hidden = true;
+  show("song");
+  setSlide(0);
+  const useYT = SPEED === 1 && Q.get("music") !== "0";
+  let mode = "none";
+  if (useYT) {
+    ytCmd("unMute"); ytCmd("setVolume", [100]); ytCmd("seekTo", [0, true]); ytCmd("playVideo");
+    // wait briefly for autoplay
+    for (let k = 0; k < 16 && !(ytState === 1 && ytTime > 0.05); k++) await wait(150);
+    if (!(ytState === 1)) {
+      // autoplay blocked (e.g. iPhone): ask for one tap that lands on the hidden player
+      $("#tap").hidden = false; yt.classList.add("catch");
+      let blurred = false; const onBlur = () => { blurred = true; }; addEventListener("blur", onBlur);
+      setTimeout(() => { $("#skipmusic").hidden = false; }, 12000);
+      let skipped = false; $("#skipmusic").onclick = () => { skipped = true; };
+      while (!(ytState === 1 || ytState === 3) && !skipped && !(blurred && !ytHeard)) await wait(150);
+      removeEventListener("blur", onBlur);
+      yt.classList.remove("catch"); $("#tap").hidden = true; $("#skipmusic").hidden = true;
+      if (skipped) mode = "clock"; else { ytCmd("unMute"); mode = ytHeard ? "yt" : "clock"; }
+    } else mode = "yt";
+  } else mode = "clock";
+
+  const t0 = performance.now(); let fading = false;
+  await new Promise(done => {
+    const tick = () => {
+      let t;
+      if (mode === "yt") t = ytTime;
+      else t = (performance.now() - t0) / 1000 * SPEED;
+      $("#prog").style.width = Math.min(100, t / SONG_SECONDS * 100) + "%";
+      setSlide(Math.floor(t / (SONG_SECONDS / SLIDES.length)));
+      if (mode === "yt" && t > SONG_SECONDS - 3 && !fading) {
+        fading = true; let v = 100; const f = setInterval(() => { v -= 10; ytCmd("setVolume", [Math.max(v, 0)]); if (v <= 0) clearInterval(f); }, 280);
+      }
+      if (t >= SONG_SECONDS) { if (mode === "yt") ytCmd("pauseVideo"); return done(); }
+      requestAnimationFrame(tick);
+    };
+    tick();
+  });
+  letterChapter();
+}
+
+/* ---------- the letter ---------- */
+function hearts(n) {
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const h = document.createElement("div"); h.className = "heart"; h.textContent = ["❤️","💕","🌙","✨"][i % 4];
+    h.style.left = Math.random() * 100 + "vw"; h.style.setProperty("--dx", (Math.random() * 120 - 60) + "px"); h.style.setProperty("--r", (Math.random() * 90 - 45) + "deg");
+    h.style.animationDuration = (5 + Math.random() * 4) + "s"; h.style.fontSize = (16 + Math.random() * 18) + "px";
+    document.body.appendChild(h); setTimeout(() => h.remove(), 9500);
+  }, i * 260);
+}
+function letterChapter() {
+  show("letterScr");
+  const env = $("#env"); let opened = false;
+  const open = () => {
+    if (opened) return; opened = true; env.classList.add("open");
+    const r = env.getBoundingClientRect(); burst(r.left + r.width/2, r.top + r.height/2);
+    setTimeout(() => { $("#letterScr").classList.remove("on"); $("#letter").classList.add("on"); hearts(26); }, 1100);
+  };
+  env.onclick = open; env.onkeydown = e => { if (e.key === "Enter" || e.key === " ") open(); };
+  setTimeout(open, 15000);
+}
+$("#again").onclick = () => location.reload();
+})();
+</script>
+</body>
+</html>
